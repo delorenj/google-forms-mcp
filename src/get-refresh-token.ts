@@ -8,75 +8,75 @@ import open from 'open';
 // @ts-ignore
 import destroyer from 'server-destroy';
 
-// このスクリプトを実行する前に、以下の環境変数を設定してください
+// Please set the following environment variables before running this script
 const CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
 const CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
 const REDIRECT_URI = 'http://localhost:3000/oauth2callback';
 
 if (!CLIENT_ID || !CLIENT_SECRET) {
-  console.error('環境変数 GOOGLE_CLIENT_ID と GOOGLE_CLIENT_SECRET を設定してください');
+  console.error('Please set the environment variables GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET');
   process.exit(1);
 }
 
-// OAuth2クライアントの初期化
+// Initialize OAuth2 client
 const oauth2Client = new google.auth.OAuth2(
   CLIENT_ID,
   CLIENT_SECRET,
   REDIRECT_URI
 );
 
-// 認証スコープの設定
+// Set authentication scopes
 const scopes = [
   'https://www.googleapis.com/auth/forms',
   'https://www.googleapis.com/auth/drive'
 ];
 
 async function main() {
-  // 認証URLの生成
+  // Generate authentication URL
   const authorizeUrl = oauth2Client.generateAuthUrl({
     access_type: 'offline',
     scope: scopes,
-    prompt: 'consent' // リフレッシュトークンを強制的に取得するために必要
+    prompt: 'consent' // Required to force refresh token acquisition
   });
 
-  // ローカルサーバーの起動
+  // Start local server
   const server = http.createServer(async (req, res) => {
     try {
       if (!req.url) {
         throw new Error('No URL in request');
       }
 
-      // コールバックURLからコードを取得
+      // Get code from callback URL
       const queryParams = url.parse(req.url, true).query;
       const code = queryParams.code;
 
       if (code) {
-        // コードをトークンに交換
+        // Exchange code for tokens
         const { tokens } = await oauth2Client.getToken(code as string);
         
-        // レスポンスを返す
+        // Return response
         res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
         res.end(`
           <!DOCTYPE html>
           <html>
           <head>
             <meta charset="utf-8">
-            <title>認証成功</title>
+            <title>Authentication Successful</title>
           </head>
           <body>
-            <h1>認証成功！</h1>
-            <p>このウィンドウを閉じて、ターミナルに戻ってください。</p>
+            <h1>Authentication Successful!</h1>
+            <p>Please close this window and return to the terminal.</p>
           </body>
           </html>
         `);
 
-        // リフレッシュトークンを表示
-        console.log('\n=== リフレッシュトークン ===');
+        // Display refresh token
+        console.log('\n=== Refresh Token ===');
         console.log(tokens.refresh_token);
         console.log('========================\n');
-        console.log('このリフレッシュトークンを環境変数 GOOGLE_REFRESH_TOKEN に設定してください。');
+        console.log('Please set this refresh token to the environment variable GOOGLE_REFRESH_TOKEN.');
         
-        // サーバーを停止
+        // Stop the server
         server.destroy();
       } else {
         res.writeHead(400, { 'Content-Type': 'text/html; charset=utf-8' });
@@ -85,10 +85,10 @@ async function main() {
           <html>
           <head>
             <meta charset="utf-8">
-            <title>エラー</title>
+            <title>Error</title>
           </head>
           <body>
-            <h1>認証コードが見つかりません</h1>
+            <h1>Authentication code not found</h1>
           </body>
           </html>
         `);
@@ -100,10 +100,10 @@ async function main() {
         <html>
         <head>
           <meta charset="utf-8">
-          <title>エラー</title>
+          <title>Error</title>
         </head>
         <body>
-          <h1>エラーが発生しました</h1>
+          <h1>An error occurred</h1>
           <p>${e}</p>
         </body>
         </html>
@@ -111,8 +111,8 @@ async function main() {
       console.error('Error:', e);
     }
   }).listen(3000, () => {
-    // ブラウザで認証URLを開く
-    console.log('認証URLを開きます...');
+    // Open authentication URL in browser
+    console.log('Opening authentication URL...');
     open(authorizeUrl, { wait: false });
   });
 

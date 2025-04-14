@@ -12,9 +12,12 @@
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.6.1",
     "axios": "^1.6.2",
+    "google-auth-library": "^9.15.1",
     "googleapis": "^126.0.1",
     "open": "^9.1.0",
-    "server-destroy": "^1.0.1"
+    "server-destroy": "^1.0.1",
+    "undici": "^7.8.0",
+    "undici-types": "^7.8.0"
   },
   "devDependencies": {
     "@types/node": "^20.10.0",

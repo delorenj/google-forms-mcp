@@ -11,7 +11,7 @@ import {
 import { google } from 'googleapis';
 import { OAuth2Client } from 'google-auth-library';
 
-// 環境変数から認証情報を取得
+// Get authentication information from environment variables
 const CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
 const CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
 const REFRESH_TOKEN = process.env.GOOGLE_REFRESH_TOKEN;
@@ -38,7 +38,7 @@ class GoogleFormsServer {
       }
     );
 
-    // OAuth2クライアントの初期化
+    // Initialize OAuth2 client
     this.oauth2Client = new google.auth.OAuth2(
       CLIENT_ID,
       CLIENT_SECRET
@@ -47,7 +47,7 @@ class GoogleFormsServer {
       refresh_token: REFRESH_TOKEN
     });
 
-    // Google Forms APIの初期化
+    // Initialize Google Forms API
     this.forms = google.forms({
       version: 'v1',
       auth: this.oauth2Client
@@ -55,7 +55,7 @@ class GoogleFormsServer {
 
     this.setupToolHandlers();
     
-    // エラーハンドリング
+    // Error handling
     this.server.onerror = (error: Error) => console.error('[MCP Error]', error);
     process.on('SIGINT', async () => {
       await this.server.close();
@@ -68,17 +68,17 @@ class GoogleFormsServer {
       tools: [
         {
           name: 'create_form',
-          description: '新しいGoogleフォームを作成します',
+          description: 'Create a new Google Form',
           inputSchema: {
             type: 'object',
             properties: {
               title: {
                 type: 'string',
-                description: 'フォームのタイトル',
+                description: 'Title of the form',
               },
               description: {
                 type: 'string',
-                description: 'フォームの説明（オプション）',
+                description: 'Description of the form (optional)',
               }
             },
             required: ['title'],
@@ -86,21 +86,21 @@ class GoogleFormsServer {
         },
         {
           name: 'add_text_question',
-          description: 'フォームにテキスト質問を追加します',
+          description: 'Add a text question to the form',
           inputSchema: {
             type: 'object',
             properties: {
               formId: {
                 type: 'string',
-                description: 'フォームID',
+                description: 'Form ID',
               },
               questionTitle: {
                 type: 'string',
-                description: '質問のタイトル',
+                description: 'Title of the question',
               },
               required: {
                 type: 'boolean',
-                description: '必須かどうか（オプション、デフォルトはfalse）',
+                description: 'Whether it is required (optional, default is false)',
               }
             },
             required: ['formId', 'questionTitle'],
@@ -108,28 +108,28 @@ class GoogleFormsServer {
         },
         {
           name: 'add_multiple_choice_question',
-          description: 'フォームに選択式質問を追加します',
+          description: 'Add a multiple choice question to the form',
           inputSchema: {
             type: 'object',
             properties: {
               formId: {
                 type: 'string',
-                description: 'フォームID',
+                description: 'Form ID',
               },
               questionTitle: {
                 type: 'string',
-                description: '質問のタイトル',
+                description: 'Title of the question',
               },
               options: {
                 type: 'array',
                 items: {
                   type: 'string'
                 },
-                description: '選択肢の配列',
+                description: 'Array of options',
               },
               required: {
                 type: 'boolean',
-                description: '必須かどうか（オプション、デフォルトはfalse）',
+                description: 'Whether it is required (optional, default is false)',
               }
             },
             required: ['formId', 'questionTitle', 'options'],
@@ -137,13 +137,13 @@ class GoogleFormsServer {
         },
         {
           name: 'get_form',
-          description: 'フォームの詳細を取得します',
+          description: 'Get form details',
           inputSchema: {
             type: 'object',
             properties: {
               formId: {
                 type: 'string',
-                description: 'フォームID',
+                description: 'Form ID',
               }
             },
             required: ['formId'],
@@ -151,13 +151,13 @@ class GoogleFormsServer {
         },
         {
           name: 'get_form_responses',
-          description: 'フォームの回答を取得します',
+          description: 'Get form responses',
           inputSchema: {
             type: 'object',
             properties: {
               formId: {
                 type: 'string',
-                description: 'フォームID',
+                description: 'Form ID',
               }
             },
             required: ['formId'],
@@ -255,12 +255,12 @@ class GoogleFormsServer {
     }
 
     try {
-      // 現在のフォームを取得
+      // Get the current form
       const form = await this.forms.forms.get({
         formId: args.formId,
       });
 
-      // 新しい質問を追加するリクエストを作成
+      // Create a request to add a new question
       const updateRequest = {
         requests: [
           {
@@ -282,7 +282,7 @@ class GoogleFormsServer {
         ]
       };
 
-      // フォームを更新
+      // Update the form
       const response = await this.forms.forms.batchUpdate({
         formId: args.formId,
         requestBody: updateRequest,
@@ -319,12 +319,12 @@ class GoogleFormsServer {
     }
 
     try {
-      // 選択肢を作成
+      // Create choices
       const choices = args.options.map((option: string) => ({
         value: option
       }));
 
-      // 新しい質問を追加するリクエストを作成
+      // Create a request to add a new question
       const updateRequest = {
         requests: [
           {
@@ -349,7 +349,7 @@ class GoogleFormsServer {
         ]
       };
 
-      // フォームを更新
+      // Update the form
       const response = await this.forms.forms.batchUpdate({
         formId: args.formId,
         requestBody: updateRequest,

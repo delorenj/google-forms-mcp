@@ -1,103 +1,104 @@
 # Google Forms MCP Server
 
-このMCPサーバーは、Google FormsのAPIを使用して、フォームの作成、編集、回答の取得などの機能を提供します。
+This MCP server uses the Google Forms API to provide functions such as creating and editing forms, and retrieving responses.
 
-## ビルド方法
+## Build Instructions
 
-### 初期セットアップ
-リポジトリをクローンした後、依存関係をインストール
-```
+### Initial Setup
+After cloning the repository, install dependencies:
+```bash
 cd google-forms-server
 npm install
 ```
 
-### サーバーのビルド
-```
-# メインのMCPサーバーをビルド
+### Build the Server
+```bash
+# Build the main MCP server
 npm run build
 ```
 
-### リフレッシュトークン取得スクリプトのビルド
-```
-# リフレッシュトークン取得スクリプトをビルド
+### Build the Refresh Token Script
+```bash
+# Build the refresh token acquisition script
 npm run build:token
 ```
 
-### 開発環境における実行
-```
-# サーバーを直接実行
+### Running in Development Environment
+```bash
+# Run the server directly
 node build/index.js
 
-# または、npm scriptを使用
+# Or, use the npm script
 npm run start
 ```
 
 
-## セットアップ方法
+## Setup Instructions
 
-1. Google Cloud Consoleでプロジェクトを作成し、Google Forms APIを有効にします。
-   - https://console.cloud.google.com/
-   - APIとサービス > ライブラリから「Google Forms API」を検索して有効にします。
+1.  Create a project in the Google Cloud Console and enable the Google Forms API.
+    *   https://console.cloud.google.com/
+    *   Search for "Google Forms API" in API & Services > Library and enable it.
 
-2. OAuth 2.0クライアントIDとシークレットを取得します。
-   - APIとサービス > 認証情報 > 認証情報を作成 > OAuth クライアントID
-   - アプリケーションの種類：「デスクトップアプリ」を選択
+2.  Obtain an OAuth 2.0 Client ID and Secret.
+    *   API & Services > Credentials > Create Credentials > OAuth client ID
+    *   Application type: Select "Desktop app"
 
-3. 環境変数を設定してリフレッシュトークンを取得します。
-   ```bash
-   export GOOGLE_CLIENT_ID="あなたのクライアントID"
-   export GOOGLE_CLIENT_SECRET="あなたのクライアントシークレット"
-   cd google-forms-server
-   npm run build
-   node build/get-refresh-token.js
-   ```
+3.  Set environment variables and obtain a refresh token.
+    ```bash
+    export GOOGLE_CLIENT_ID="YOUR_CLIENT_ID"
+    export GOOGLE_CLIENT_SECRET="YOUR_CLIENT_SECRET"
+    cd google-forms-server
+    npm run build
+    node build/get-refresh-token.js
+    ```
 
-   注意: get-refresh-token.jsの実行時にエラーが発生する場合は、以下のコマンドを実行してください。
-   ```bash
-   cd google-forms-server
-   npm run build:token
-   node build/get-refresh-token.js
-   ```
+    Note: If you encounter an error when running `get-refresh-token.js`, execute the following commands:
+    ```bash
+    cd google-forms-server
+    npm run build:token
+    node build/get-refresh-token.js
+    ```
 
-4. 表示されたリフレッシュトークンをコピーします。
+4.  Copy the displayed refresh token.
 
-5. Claudeのデスクトップアプリの設定ファイルを更新します。
-   - `~/Library/Application Support/Claude/claude_desktop_config.json`を開きます。
-   - `mcpServers`セクションの`google-forms-server`に環境変数を追加します：
-   ```json
-   "google-forms-server": {
-     "command": "node",
-     "args": [
-       "/Users/nakamotomasatoshi/application/AI/mcp-google-form/google-forms-server/build/index.js"
-     ],
-     "env": {
-       "GOOGLE_CLIENT_ID": "あなたのクライアントID",
-       "GOOGLE_CLIENT_SECRET": "あなたのクライアントシークレット",
-       "GOOGLE_REFRESH_TOKEN": "取得したリフレッシュトークン"
-     }
-   }
-   ```
+5.  Update the Claude desktop app's configuration file.
+    *   Open `~/Library/Application Support/Claude/claude_desktop_config.json`.
+    *   Add environment variables to the `google-forms-server` in the `mcpServers` section:
+    ```json
+    "google-forms-server": {
+      "command": "node",
+      "args": [
+        "/path/to/your/mcp-google-form/google-forms-server/build/index.js" // Update this path
+      ],
+      "env": {
+        "GOOGLE_CLIENT_ID": "YOUR_CLIENT_ID",
+        "GOOGLE_CLIENT_SECRET": "YOUR_CLIENT_SECRET",
+        "GOOGLE_REFRESH_TOKEN": "YOUR_REFRESH_TOKEN"
+      }
+    }
+    ```
+    *Note: Ensure the path in `args` points to the correct location of `index.js` on your system.*
 
-6. Claudeのデスクトップアプリを再起動します。
+6.  Restart the Claude desktop app.
 
-## 使用可能なツール
+## Available Tools
 
-このMCPサーバーは以下のツールを提供します：
+This MCP server provides the following tools:
 
-1. `create_form` - 新しいGoogleフォームを作成します
-2. `add_text_question` - フォームにテキスト質問を追加します
-3. `add_multiple_choice_question` - フォームに選択式質問を追加します
-4. `get_form` - フォームの詳細を取得します
-5. `get_form_responses` - フォームの回答を取得します
+1.  `create_form` - Creates a new Google Form
+2.  `add_text_question` - Adds a text question to the form
+3.  `add_multiple_choice_question` - Adds a multiple-choice question to the form
+4.  `get_form` - Retrieves the details of a form
+5.  `get_form_responses` - Retrieves the responses for a form
 
-## 使用例
+## Usage Example
 
 ```
-フォームを作成して、いくつかの質問を追加してください。
+Create a form and add some questions.
 ```
 
-Claudeは以下のようなMCPツールを使用してフォームを作成します：
+Claude will use MCP tools like the following to create the form:
 
-1. `create_form`ツールを使用して新しいフォームを作成
-2. `add_text_question`や`add_multiple_choice_question`ツールを使用して質問を追加
-3. 作成されたフォームのURLを表示
+1.  Use the `create_form` tool to create a new form
+2.  Use the `add_text_question` or `add_multiple_choice_question` tools to add questions
+3.  Display the URL of the created form
