@@ -94,7 +94,8 @@ This MCP server provides the following tools:
 ## Usage Example
 
 ```
-Create a form and add some questions.
+I want to guage my dev team's familiarity and comfort level integrating AI in their workflow.
+Use your google forms tools to create a 2-4 minute multiple-choice survey!
 ```
 
 Claude will use MCP tools like the following to create the form:
